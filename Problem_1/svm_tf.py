@@ -15,14 +15,18 @@ def identity_phi(x):
 
 def circle_phi(x):
     ######### Your code starts here #########
-
+    opp_over_adj = x[:,1] / x[:,0]
+    opp_over_adj = np.reshape(opp_over_adj, (-1, 1))
+    x = np.append(x, opp_over_adj, 1)
     ######### Your code ends here #########
     return x
 
 
 def inner_circle_phi(x):
     ######### Your code starts here #########
-    
+    circle = x[:,0]**2 + x[:,1]**2
+    circle = np.reshape(circle, (-1, 1))
+    x = np.append(x, circle, 1)
     ######### Your code ends here #########
     return x
 
@@ -60,10 +64,6 @@ def loss(y_est, y, W, lam):
     """
     y = tf.cast(y, dtype=tf.float32)
     ######### Your code starts here #########
-    #lamW2 = tf.matmul(lam, tf.square(W))
-    #hingeLoss = tf.max(0, tf.subtract(1, tf.matmul(y, y_est)))
-    #n = tf.size
-    #loss = tf.min(tf.divide(tf.sum(tf.add(hingeLoss, lamW2)), n))
     loss = tf.keras.losses.hinge(y, y_est)
     ######### Your code ends here #########
     return loss
