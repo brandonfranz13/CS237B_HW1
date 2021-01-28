@@ -102,11 +102,11 @@ def svm(data, basis_function=identity_phi, epochs=10, ret_dec_p=False):
         # 4. Run an optimization step on the weights.
         # Helpful Functions: tf.GradientTape(), tf.GradientTape.gradient(), tf.keras.Optimizer.apply_gradients
         with tf.GradientTape() as tape:
-            y_est = call(x, False)
-            current_loss = loss(y_est, y, self.W, params['lam'])
+            y_est = svm_model.call(x, False)
+            current_loss = loss(y_est, y, [svm_model.W, svm_model.b], params['lam'])
         
-        dl_dW = tape.gradient(current_loss, self.W)
-        optimizer.apply_gradients(dl_dW, self.W)
+        dl_dW = tape.gradient(current_loss, svm_model.trainable_variables)
+        optimizer.apply_gradients(zip(dl_dW, svm_model.trainable_variables))
         ######### Your code ends here #########
 
         train_loss(current_loss)
@@ -125,12 +125,12 @@ def svm(data, basis_function=identity_phi, epochs=10, ret_dec_p=False):
         # 2. Calculate the loss for the output of the forward pass
         # 3. Get the predicted labels for the batch
         # 4. Add to the values to the respective metrics -> See train_step
-        y_est = call(x, False)
-        current_loss = loss(y_est, y, self.W, params['lam'])
+        y_est = svm_model.call(x, False)
+        current_loss = loss(y_est, y, svm_model.W, params['lam'])
         
-        y_pred = call(x)
+        y_pred = svm_model.call(x)
         eval_loss(current_loss)
-        eval_accuracy()
+        eval_accuracy(y, y_pred)
 
         ######### Your code ends here #########
 
