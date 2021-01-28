@@ -30,10 +30,12 @@ def get_bottleneck_dataset(model, img_dir, img_size):
         # bottelneck_x_l -> list of tensors with dimension [1, bottleneck_size]
         # bottelneck_y_l -> list of tensors with dimension [1, num_labels]
 
+        x_i, y_i = next(train_img_gen)
+        predicted_x_i = model.predict(x_i)
+        y_i_tensor = tf.convert_to_tensor(y_i)
         
-
-
-
+        bottelneck_x_l.append(predicted_x_i)
+        bottelneck_y_l.append(y_i_tensor)
         ######### Your code ends here #########
 
     bottelneck_ds = tf.data.Dataset.from_tensor_slices((np.vstack(bottelneck_x_l),
@@ -67,12 +69,19 @@ def retrain(image_dir):
     #   2.4 Create a new model
     # 3. Define a loss and a evaluation metric
 
+    bottleneck_size = base_model.layers[-1].output_shape[1]
     
-
-
-
-
-
+    retrain_input = tf.keras.Input(shape = bottleneck_size)
+    retrain_activation = 'softmax'
+    retrain_layer = tf.keras.layers.Dense(3, name = 'classifier', trainable = True, activation = retrain_activation)
+    
+    retrain_model = tf.keras.models.Sequential([
+        retrain_input,
+        retrain_layer
+    ])
+       
+    loss = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
+    metric = 'accuracy'
 
     ######### Your code ends here #########
 
@@ -84,7 +93,7 @@ def retrain(image_dir):
 
     EPOCHS = 1
     steps_per_epoch = 5000
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='./retrain_logs', update_freq='batch')
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir='retrain_logs', update_freq='batch')
     retrain_model.fit(train_batches,
                       epochs=EPOCHS,
                       steps_per_epoch=steps_per_epoch,
@@ -94,9 +103,9 @@ def retrain(image_dir):
     # We now want to create the full model using the newly trained classifier
     # Use tensorflow keras Sequential to stack the base_model and the new layers
     
-
-
-
+    model = tf.keras.Sequential()
+    model.add(base_model)
+    model.add(retrain_model)
     
     ######### Your code ends here #########
 

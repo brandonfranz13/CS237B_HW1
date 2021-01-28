@@ -43,12 +43,14 @@ class SVM(tf.keras.Model):
         Hint: your return values should be different based on is_prediction.
         """
         ######### Your code starts here #########
+        xW = tf.matmul(x, self.W)
         
-
-
-
-
-
+        if is_prediction:
+            y_est = tf.sign(tf.subtract(xW, self.b))
+        else:
+            y_est = tf.subtract(xW, self.b)
+        
+        return y_est
         ######### Your code ends here #########
 
 
@@ -58,7 +60,11 @@ def loss(y_est, y, W, lam):
     """
     y = tf.cast(y, dtype=tf.float32)
     ######### Your code starts here #########
-    
+    #lamW2 = tf.matmul(lam, tf.square(W))
+    #hingeLoss = tf.max(0, tf.subtract(1, tf.matmul(y, y_est)))
+    #n = tf.size
+    #loss = tf.min(tf.divide(tf.sum(tf.add(hingeLoss, lamW2)), n))
+    loss = tf.keras.losses.hinge(y, y_est)
     ######### Your code ends here #########
     return loss
 
@@ -72,7 +78,8 @@ def svm(data, basis_function=identity_phi, epochs=10, ret_dec_p=False):
         'eval_batch_size': 32,
         ######### Your code starts here #########
         # define your learning rate ('lr') and lambda ('lam') values here
-        
+        'lr': 0.1,
+        'lam': 0.9,
 
         ######### Your code ends here #########
     }
@@ -94,11 +101,12 @@ def svm(data, basis_function=identity_phi, epochs=10, ret_dec_p=False):
         # 3. Based on the loss calculate the gradient for all weights
         # 4. Run an optimization step on the weights.
         # Helpful Functions: tf.GradientTape(), tf.GradientTape.gradient(), tf.keras.Optimizer.apply_gradients
+        with tf.GradientTape() as tape:
+            y_est = call(x, False)
+            current_loss = loss(y_est, y, self.W, params['lam'])
         
-
-
-
-
+        dl_dW = tape.gradient(current_loss, self.W)
+        optimizer.apply_gradients(dl_dW, self.W)
         ######### Your code ends here #########
 
         train_loss(current_loss)
@@ -117,9 +125,12 @@ def svm(data, basis_function=identity_phi, epochs=10, ret_dec_p=False):
         # 2. Calculate the loss for the output of the forward pass
         # 3. Get the predicted labels for the batch
         # 4. Add to the values to the respective metrics -> See train_step
+        y_est = call(x, False)
+        current_loss = loss(y_est, y, self.W, params['lam'])
         
-
-
+        y_pred = call(x)
+        eval_loss(current_loss)
+        eval_accuracy()
 
         ######### Your code ends here #########
 

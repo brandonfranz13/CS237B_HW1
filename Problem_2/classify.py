@@ -21,19 +21,18 @@ def classify(model, test_dir):
     # Classify all images in the given folder
     # Calculate the accuracy and the number of test samples in the folder
     # test_img_gen has a list attribute filenames where you can access the filename of the datapoint
+    cumulative_accuracy = 0.
+    num_test = test_img_gen.samples
     
-
-
-
-
-
-
-
-
-
-
+    for i in range(num_test):
+        filename = test_img_gen.filenames[i]
+        test_images, test_labels = next(test_img_gen)
+        _, test_accuracy = model.evaluate(test_images, test_labels)
+        cumulative_accuracy = cumulative_accuracy + test_accuracy
+        if test_accuracy < 1:
+            print('\nMisclassified image: ', filename)
     
-
+    accuracy = cumulative_accuracy / num_test
     ######### Your code ends here #########
 
     print(f"Evaluated on {num_test} samples.")
