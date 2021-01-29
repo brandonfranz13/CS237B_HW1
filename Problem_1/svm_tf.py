@@ -177,14 +177,33 @@ def get_hog_data():
     Recall that in order to access values at a particular node of a graph, you must use
      .numpy() on the tensor of interest.
     """
+    
     pedestrian_data = np.load("pedestrian_dataset.npz")
     ######### Your code starts here #########
+    ## Train
+    pos = hog_descriptor(pedestrian_data['train_pos']).numpy()
+    neg = hog_descriptor(pedestrian_data['train_neg']).numpy()
+    x_train = np.vstack((pos, neg))
+    pos_size = pos.shape[0]
+    neg_size = neg.shape[0]
+    y_train = np.vstack((np.ones((pos_size, 1)), -1*np.ones((neg_size, 1))))
     
-
-
-
-
+    ## Eval
+    pos = hog_descriptor(pedestrian_data['eval_pos']).numpy()
+    neg = hog_descriptor(pedestrian_data['eval_neg']).numpy()
+    x_eval = np.vstack((pos, neg))
+    pos_size = pos.shape[0]
+    neg_size = neg.shape[0]
+    y_eval = np.vstack((np.ones((pos_size, 1)), -1*np.ones((neg_size, 1))))
     
+    ## Test
+    pos = hog_descriptor(pedestrian_data['test_pos']).numpy()
+    neg = hog_descriptor(pedestrian_data['test_neg']).numpy()
+    x_pred = np.vstack((pos, neg))
+    pos_size = pos.shape[0]
+    neg_size = neg.shape[0]
+    y_true = np.vstack((np.ones((pos_size, 1)), -1*np.ones((neg_size, 1))))
+
     ######### Your code ends here #########
     return (x_train, y_train), (x_eval, y_eval), (x_pred, y_true)
 
