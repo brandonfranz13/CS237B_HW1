@@ -36,7 +36,7 @@ def resize_image(image, img_size):
     return image
 
 
-def normalize_resize_image(image, img_size):
+def normalize_resize_image(image, img_size=IMG_SIZE):
     return resize_image(normalize_image(image), img_size)
 
 

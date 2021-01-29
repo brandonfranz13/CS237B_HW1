@@ -31,25 +31,12 @@ def compute_brute_force_classification(model, image_path, nH=8, nW=8):
     raw_image = decode_jpeg(image_path).numpy()
 
     ######### Your code starts here #########
-
+    window_predictions = np.array((1, nH, nW, 3))
+    image = normalize_resize_image(raw_image)
+    for h in range(nH):
+        for w in range(nW):
+            window_predictions[1, h, w, :] = model.predict(image).squeeze()
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     ######### Your code ends here #########
 
     return window_predictions
@@ -68,10 +55,6 @@ def compute_convolutional_KxK_classification(model, image_path):
 
     ######### Your code starts here #########
     # We want to use the output of the last convolution layer which has the shape [bs, K, K, bottleneck_size]
-
-
-
-
 
 
 
@@ -100,7 +83,7 @@ def compute_and_plot_saliency(model, image_path):
     with tf.GradientTape() as t:
         ######### Your code starts here #########
 
-
+        pass
 
 
 
