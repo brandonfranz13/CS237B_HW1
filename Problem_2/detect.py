@@ -32,11 +32,10 @@ def compute_brute_force_classification(model, image_path, nH=8, nW=8):
 
     ######### Your code starts here #########
     window_predictions = np.array((1, nH, nW, 3))
-    image = normalize_resize_image(raw_image)
-    for h in range(nH):
-        for w in range(nW):
-            window_predictions[1, h, w, :] = model.predict(image).squeeze()
-    
+    image = normalize_resize_image(raw_image).reshape((1, IMG_SIZE, IMG_SIZE, 3))
+    padding = 2
+    windows = tf.image.extract_patches(image, [1, 37, 37, 1], [1, 17, 17, 1], padding = 'VALID')
+    print(windows)
     ######### Your code ends here #########
 
     return window_predictions
