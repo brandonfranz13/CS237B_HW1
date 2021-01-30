@@ -177,14 +177,29 @@ class Critic():
         # the neural network (input will be the current state, output is an 
         # estimate of the reward-to-go)
         
-
-
-
-
-
-
-
-
+        self.nn = tf.keras.Sequential([
+            tf.keras.layers.Dense(128, activation='relu',
+                                  input_shape=[state_dim],
+                                  kernel_initializer=tf.random_normal_initializer(0., .1),
+                                  bias_initializer=tf.constant_initializer(.1),
+                                  name='critic_h1'),
+            tf.keras.layers.Dense(state_dim, activation=None,
+                                  kernel_initializer=tf.random_normal_initializer(0., .1),
+                                  bias_initializer=tf.constant_initializer(.1),
+                                  name='critic_outputs'),
+        ])
+        
+        # probability distribution over potential actions
+        self.expected_v = self.nn(self.state_input_ph)
+                  
+        # the expected reward to go for this sample (J(theta)) (Eqn. 11)
+        self.td_error = self.log_action_prob * self.td_error_ph
+        
+        y = self.reward_ph + GAMMA * self.v_next_ph
+        squared_error = (self.expected_v - y) ** 2
+        
+        # minimize squared td error
+        self.loss = tf.reduce_mean(squared_error)
         
         ######### Your code ends here #########
 
