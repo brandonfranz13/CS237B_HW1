@@ -29,14 +29,27 @@ def compute_brute_force_classification(model, image_path, nH=8, nW=8):
 
     # H x W x 3 numpy array (3 for each RGB color channel)
     raw_image = decode_jpeg(image_path).numpy()
-
+    print('raw_image: ', raw_image[1:2, 3:4, :])
     ######### Your code starts here #########
-    window_predictions = np.array((1, nH, nW, 3))
-    image = normalize_resize_image(raw_image).numpy().reshape((1, IMG_SIZE, IMG_SIZE, 3))
-    padding = 2
-    windows = tf.image.extract_patches(image, [1, 37, 37, 1], [1, 17, 17, 1], [1, 1, 1, 1], padding = 'VALID')
-    print(windows.shape)
-    window_predictions = model.predict(windows, LABELS).numpy().squeeze()
+    boxH = floor(raw_image.shape[0] / nH)
+    boxW = floor(raw_image.shape[1] / nW)
+    image = []
+    x_start = 0
+    x_end = 0
+    y_start = 0
+    y_end = boxH
+    for i in range(nH):
+        x_start = 0
+        x_end += boxW
+        for j in range(nW):
+            window = raw_image[y_start:y_end, x_start:x_end, :]
+            image.append(normalize_resize_image(window).numpy().reshape((1, IMG_SIZE, IMG_SIZE, 3)))
+            x_start = x_end
+            x_end += boxW
+        y_start = y_end
+        y_end += boxH
+            
+    window_predictions = model.predict(image, LABELS).numpy().squeeze()
     ######### Your code ends here #########
 
     return window_predictions
@@ -55,8 +68,8 @@ def compute_convolutional_KxK_classification(model, image_path):
 
     ######### Your code starts here #########
     # We want to use the output of the last convolution layer which has the shape [bs, K, K, bottleneck_size]
-    # conv_model.predict
-
+    predictionsKxK = conv_model.predict(resized_patch, LABELS)
+    K = predictionsKxK.numpy().shape[1]
 
     ######### Your code ends here #########
 
